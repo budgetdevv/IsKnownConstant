@@ -23,8 +23,10 @@ namespace IsKnownConstant
                 InlinedMethod(typeof(Program));
         }
 
+        // We try to access this class via reflection, so it shouldn't result in a constant type
         private sealed class FooBar;
 
+        // The constant folding doesn't happen in T0 compilation
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static bool CallerMethodWithNonConstantType()
         {
