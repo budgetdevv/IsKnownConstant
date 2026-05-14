@@ -7,9 +7,9 @@ namespace IsKnownConstant
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine($"{nameof(CallerMethodWithConstants)} [ IsKnownConstant: {CallerMethodWithConstants()} ]");
+            Console.WriteLine($"{nameof(CallerMethodWithConstants)} [ {nameof(ConstantHelpers.IsKnownConstant)}: {CallerMethodWithConstants()} ]");
 
-            Console.WriteLine($"{nameof(CallerMethodWithNonConstantType)} [ IsKnownConstant: {CallerMethodWithNonConstantType()} ]");
+            Console.WriteLine($"{nameof(CallerMethodWithNonConstantType)} [ {nameof(ConstantHelpers.IsKnownConstant)}: {CallerMethodWithNonConstantType()} ]");
         }
 
         // The constant folding doesn't happen in T0 compilation
