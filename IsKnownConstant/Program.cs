@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace IsKnownConstant
 {
@@ -6,52 +7,57 @@ namespace IsKnownConstant
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine(CallerMethod());
+            Console.WriteLine($"{nameof(CallerMethodWithConstants)} [ IsKnownConstant: {CallerMethodWithConstants()} ]");
+
+            Console.WriteLine($"{nameof(CallerMethodWithNonConstantType)} [ IsKnownConstant: {CallerMethodWithNonConstantType()} ]");
         }
 
         // The constant folding doesn't happen in T0 compilation
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-        private static bool CallerMethod()
+        private static bool CallerMethodWithConstants()
         {
-            return InlinedMethod(69);
+            return
+                InlinedMethod(69) &&
+                InlinedMethod("Hello") &&
+                InlinedMethod('A') &&
+                InlinedMethod(typeof(Program));
+        }
+
+        private sealed class FooBar;
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        private static bool CallerMethodWithNonConstantType()
+        {
+            return InlinedMethod(
+                typeof(Program).GetNestedType(
+                    name: nameof(FooBar),
+                    bindingAttr: unchecked((BindingFlags) (-1))
+                )
+            );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool InlinedMethod(string value)
+        {
+            return ConstantHelpers.IsKnownConstant(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool InlinedMethod(char value)
+        {
+            return ConstantHelpers.IsKnownConstant(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool InlinedMethod(Type? value)
+        {
+            return ConstantHelpers.IsKnownConstant(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool InlinedMethod<T>(T value) where T: struct
         {
-            return IsKnownConstant(@class: null, value);
+            return ConstantHelpers.IsKnownConstant(value);
         }
-
-        private const string
-            IS_KNOWN_CONSTANT_METHOD_NAME = "IsKnownConstant",
-            RUNTIME_HELPERS_TYPE_NAME = "System.Runtime.CompilerServices.RuntimeHelpers, System.Private.CoreLib";
-
-        [UnsafeAccessor(kind: UnsafeAccessorKind.StaticMethod, Name = IS_KNOWN_CONSTANT_METHOD_NAME)]
-        private static extern bool IsKnownConstant(
-            [UnsafeAccessorType(typeName: RUNTIME_HELPERS_TYPE_NAME)]
-            object? @class,
-            string? value
-        );
-
-        [UnsafeAccessor(kind: UnsafeAccessorKind.StaticMethod, Name = IS_KNOWN_CONSTANT_METHOD_NAME)]
-        private static extern bool IsKnownConstant(
-            [UnsafeAccessorType(typeName: RUNTIME_HELPERS_TYPE_NAME)]
-            object? @class,
-            char value
-        );
-
-        [UnsafeAccessor(kind: UnsafeAccessorKind.StaticMethod, Name = IS_KNOWN_CONSTANT_METHOD_NAME)]
-        private static extern bool IsKnownConstant(
-            [UnsafeAccessorType(typeName: RUNTIME_HELPERS_TYPE_NAME)]
-            object? @class,
-            Type? value
-        );
-
-        [UnsafeAccessor(kind: UnsafeAccessorKind.StaticMethod, Name = IS_KNOWN_CONSTANT_METHOD_NAME)]
-        private static extern bool IsKnownConstant<T>(
-            [UnsafeAccessorType(typeName: RUNTIME_HELPERS_TYPE_NAME)]
-            object? @class,
-            T value
-        ) where T: struct;
     }
 }
