@@ -1,6 +1,6 @@
 ### Codegen:
 
-#### Program.CallerMethodWithConstants()
+#### [Program.CallerMethodWithConstants()](https://github.com/budgetdevv/IsKnownConstant/blob/cf134e80b627a69551daea41d18951cc35f044c6/IsKnownConstant/Program.cs#L17)
 
 As shown, the `RuntimeHelpers.IsKnownConstant()` we hijacked is able to detect that the argument passed into InlinedMethod()
 are actually constants. As such, constant folding is able to kick in and optimize `Program.CallerMethodWithConstants()`
